@@ -1,18 +1,16 @@
 import asyncio
 import datetime
 from typing import TextIO, Mapping, BinaryIO, Any, Coroutine
-from cryptography.fernet import Fernet
 import os.path
 import genshin.client
 import genshin.utility
-import asyncio
 import sys
 
 
 if __name__ == '__main__':
     # do on startup
-    def configCookie(c: genshin.client.Client, log: TextIO, override=False) -> None:
-        usr = []
+    def configCookie(override=False) -> None:
+        from cryptography.fernet import Fernet
         def writeData(strr: str) -> None:
             data: BinaryIO = open("./data", "ab+")
 
@@ -32,6 +30,8 @@ if __name__ == '__main__':
             f = Fernet(key)
             t = f.decrypt(data).decode().split("\n")
             for i in t:
+                if i == '':
+                    break
                 tt = i.split()
                 usr.append({"ltuid": tt[0], "ltoken": tt[1]})
 
@@ -49,34 +49,41 @@ if __name__ == '__main__':
             else:
                 cookies: Mapping[str, str] = genshin.utility.get_browser_cookies()
                 if len(cookies.keys()) == 0:
-                    log.write(f"[{datetime.datetime.now()}]ERROR: Failed to get cookies")
+                    log.write(f"[{datetime.datetime.now()}]ERROR: Failed to get cookies, retrieving them from browser")
                     exit(-1)
                 writeData(f"{cookies['ltuid']} {cookies['ltoken']}\n")
-        c.set_cookies(usr)
 
-    async def task(c: genshin.client.Client, log):
+    def task(cookie):
         """
         attempt to auto check in upon starting program,
         """
-        try:
-            reward = await c.claim_daily_reward()
-        except Exception:
-            log.write("Daily reward already claimed")
-        else:
-            log.write(f"Claimed {reward.amount}x\"{reward.name}\"")
-        log.flush()
+        async def inernal():
+            c: genshin.client.Client = genshin.client.Client()
+            c.set_cookies(cookie)
 
-    def service(c: genshin.client.Client, log):
+            txt = ''
+            try:
+                reward = await c.claim_daily_reward()
+            except Exception:
+                txt = "Daily reward already claimed"
+            else:
+                txt = f"Claimed {reward.amount}x\"{reward.name}\""
+            print(txt)
+            log.write(txt)
+            log.flush()
+        asyncio.run(inernal())
+
+    def service():
+        for u in usr:
+            task(u)
+
+    def servideMgr():
         import schedule
-        import time
-        asyncio.run(task(c,log))
-        schedule.every().day.at('00:00').do(task, c, log)
         while True:
-            schedule.run_pending()
-            time.sleep(1)
+            schedule.every().day.at('00:00').do(service)
 
-    cli = genshin.client.Client()
-
+    usr = []
     log = open("./log.txt", 'w+')
-    configCookie(cli, log, len(sys.argv) > 1)
-    service(cli, log)
+    configCookie(len(sys.argv) > 1)
+    service()
+    servideMgr()

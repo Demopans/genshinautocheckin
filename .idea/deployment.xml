@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="PublishConfigData">
+  <component name="PublishConfigData" autoUpload="On explicit save action" deleteMissingItems="true" autoUploadExternalChanges="true">
     <serverData>
       <paths name="Remote GDB Server (d67288e6-a700-4480-896e-db48a36abdb2)">
         <serverdata>
@@ -34,5 +34,6 @@
         </serverdata>
       </paths>
     </serverData>
+    <option name="myAutoUpload" value="ON_EXPLICIT_SAVE" />
   </component>
 </project>
