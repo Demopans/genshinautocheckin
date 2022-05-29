@@ -7,3 +7,6 @@ __pycache__/
 /main.build
 /main.dist
 /genshinautocheckin/build
+/out/
+/dist/
+/.idea/
