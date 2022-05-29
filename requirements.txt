@@ -6,3 +6,4 @@ nuitka-setuptools
 cryptography
 browser_cookie3
 rsa
+ordered-set

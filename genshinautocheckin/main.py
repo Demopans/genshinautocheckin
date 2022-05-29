@@ -57,21 +57,19 @@ if __name__ == '__main__':
         """
         attempt to auto check in upon starting program,
         """
-        async def inernal():
-            c: genshin.client.Client = genshin.client.Client()
-            c.set_cookies(cookie)
+        c: genshin.client.Client = genshin.client.Client()
+        c.set_cookies(cookie)
 
-            txt = ''
-            try:
-                reward = await c.claim_daily_reward()
-            except Exception:
-                txt = "Daily reward already claimed"
-            else:
-                txt = f"Claimed {reward.amount}x\"{reward.name}\""
-            print(txt)
-            log.write(txt)
-            log.flush()
-        asyncio.run(inernal())
+        txt = ''
+        try:
+            reward = asyncio.run(c.claim_daily_reward())
+        except Exception:
+            txt = "Daily reward already claimed\n"
+        else:
+            txt = f"Claimed {reward.amount}x\"{reward.name}\""
+        print(txt)
+        log.write(txt)
+        log.flush()
 
     def service():
         for u in usr:
