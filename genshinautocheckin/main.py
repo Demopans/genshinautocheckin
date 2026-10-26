@@ -1,4 +1,5 @@
 import asyncio, sys, genshin.client, genshin.utility, time, json, logging, requests
+import os
 from random import randint
 from time import sleep
 
@@ -19,7 +20,8 @@ def configCookie(override=False) -> list[genshin.client.Client]:
       }, game=genshin.Game.GENSHIN)
       for ltuid_v2, keys in CONFIG["cookies"].items()]
   # depreciated
-  else: users = [genshin.client.Client(genshin.utility.get_browser_cookies(), game=genshin.Game.GENSHIN)]
+  else:
+    users = [genshin.client.Client(genshin.utility.get_browser_cookies(), game=genshin.Game.GENSHIN)]
   return users
 
 def taskRuntime(func, *args):
@@ -35,15 +37,19 @@ def taskRuntime(func, *args):
     exit(1)
   except Exception as e:
     raise e
-  
+
 def taskOS(func, *args):
   from platform import system
   match system():
-    case 'Linux': return asyncio.run(func(*args))
-    case 'macOS': return asyncio.run(func(*args)) # Todo: Get someone to validate this case against Macs
-    case 'Windows': return asyncio.run(func(*args), loop_factory=asyncio.SelectorEventLoop)
-    case _: return asyncio.run(func(*args))
-  
+    case 'Linux':
+      return asyncio.run(func(*args))
+    case 'macOS':
+      return asyncio.run(func(*args))  # Todo: Get someone to validate this case against Macs
+    case 'Windows':
+      return asyncio.run(func(*args), loop_factory=asyncio.SelectorEventLoop)
+    case _:
+      return asyncio.run(func(*args))
+
 def taskAutoLogin(c: genshin.client.Client):
   """
   attempt to auto check in upon starting program,
@@ -64,30 +70,42 @@ def taskAutoCode(c: genshin.client.Client):
     api: str = "https://gachafeed-api.zashikiiii.workers.dev/api/codes/genshin"
     content = requests.get(api).json()["codes"]
     content = filter(lambda x: "expiresAt" not in x.keys(), content)
-    content = set(map(lambda x: x["code"],content))
+    content = set(map(lambda x: x["code"], content))
     
-    # only unused per id
-    with open(CONFIG["codesDir"], 'w+') as f:
-      cd = dict()
+    # load cache
+    if not os.path.exists(CONFIG["codesDir"]):
+      with open(CONFIG["codesDir"], 'w') as f:
+        f.write("")
+        f.close()
+        del f
+    
+    cd = dict()
+    with open(CONFIG["codesDir"], 'r+') as f:
       try:
         cd = json.load(f)
       except json.decoder.JSONDecodeError:
         f.seek(0)
-        f.write('')
-        json.dump(dict(), f) # cannot read code cache, void cache
+        f.write('')  # cannot read code cache, void cache
+      f.close()
+      del f
+    
+    with open(CONFIG["codesDir"], 'w') as f:
+      UUID = str(c.cookie_manager.user_id)
       
-      if c.cookie_manager.user_id not in cd.keys():
-        cd[c.cookie_manager.user_id] = dict()
+      if UUID not in cd.keys():
+        cd[UUID]: dict[dict] = dict()
       
-      content -= cd[c.cookie_manager.user_id].keys()
+      content -= cd[UUID].keys()
       
       for code in content:
         taskRuntime(c.redeem_code, code)
-        sleep(randint(6,12))
-        
-      cd[c.cookie_manager.user_id] += {code: "" for code in content}
-      json.dump(cd, f, indent=2, sort_keys=True)
-    
+        sleep(randint(6, 12))
+      
+      cd[UUID] = {**cd[UUID], **{code: "" for code in content}}
+      json.dump(cd, f, indent=2, sort_keys=True, )
+      f.close()
+      del f
+  
   try:
     task(c)
   except Exception as e:
@@ -96,18 +114,14 @@ def taskAutoCode(c: genshin.client.Client):
     LOG.info(f"[{time.strftime('%Y-%m-%d')}] All codes claimed.")
     LOG.info(f"    userID: {c.cookie_manager.user_id} ")
 
-# Todo: Transition to a cronjob model in config
-def servideMgr():
+
+def servideMgr(usrs):
   import schedule
   def service():
-    import threading as tp
-    pool = [tp.Thread(target=task, args=(i,)) for i in usr]
-    for i in pool:
-      i.start()
-      time.sleep(1)
-    for i in pool:
-      i.join()
-
+    for i in usrs:
+      taskAutoLogin(i)
+      taskAutoCode(i)
+  
   schedule.every().day.at('00:00').do(service)
   schedule.run_all()
   while 1:
@@ -120,11 +134,8 @@ if __name__ == '__main__':
   
   with open(sys.argv[1], 'r') as f:
     CONFIG = json.load(f)
-  
-  usrs = configCookie(override=True)
-  
-  with open(sys.argv[1], 'r') as f:
-    service, logEnable, logDir = (a:=json.load(f))["asService"], a["log"], a["logDir"]
+    usrs = configCookie(override=True)
+    service, logEnable, logDir = (a := json.load(f))["asService"], a["log"], a["logDir"]
     
     LOG = logging.getLogger("genshin")
     LOG.setLevel(logging.INFO)
@@ -136,7 +147,8 @@ if __name__ == '__main__':
   
   # platform dependent logic set by user
   if service:
-    servideMgr()
+    servideMgr(usrs)
   else:
-    taskAutoLogin(usrs[0])
-    taskAutoCode(usrs[0])
+    for i in usrs:
+      taskAutoLogin(i)
+      taskAutoCode(i)
