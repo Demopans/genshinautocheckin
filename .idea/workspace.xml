@@ -12,10 +12,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f1190000-9d3e-4179-a8e2-800d735596ba" name="Changes" comment="Update and refactor to newer standards&#10;&#10;Signed-off-by: Demopans &lt;gao.jeff3@gmail.com&gt;">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/genshinautocheckin/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/genshinautocheckin/main.py" afterDir="false" />
-    </list>
+    <list default="true" id="f1190000-9d3e-4179-a8e2-800d735596ba" name="Changes" comment="Add code redeem service, following cleanup&#10;&#10;Signed-off-by: Demopans &lt;gao.jeff3@gmail.com&gt;" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -417,7 +414,15 @@
       <option name="project" value="LOCAL" />
       <updated>1793040485654</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="Add code redeem service, following cleanup&#10;&#10;Signed-off-by: Demopans &lt;gao.jeff3@gmail.com&gt;">
+      <option name="closed" value="true" />
+      <created>1793053851270</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1793053851270</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -433,7 +438,13 @@
       <map>
         <entry key="3cc6af40-0e82-4143-93bc-3c8bc2162e8b">
           <value>
-            <State />
+            <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="false" />
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
         <entry key="MAIN">
@@ -464,7 +475,9 @@
     <MESSAGE value="was not running under wine&#10;&#10;Signed-off-by: Demopans &lt;gao.jeff3@gmail.com&gt;" />
     <MESSAGE value="Update now that old blocker is gone. Prepare for transition to cronjob model of execution&#10;&#10;Signed-off-by: Demopans &lt;gao.jeff3@gmail.com&gt;" />
     <MESSAGE value="Update and refactor to newer standards&#10;&#10;Signed-off-by: Demopans &lt;gao.jeff3@gmail.com&gt;" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update and refactor to newer standards&#10;&#10;Signed-off-by: Demopans &lt;gao.jeff3@gmail.com&gt;" />
+    <MESSAGE value="Update&#10;&#10;Signed-off-by: Demopans &lt;gao.jeff3@gmail.com&gt;" />
+    <MESSAGE value="Add code redeem service, following cleanup&#10;&#10;Signed-off-by: Demopans &lt;gao.jeff3@gmail.com&gt;" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add code redeem service, following cleanup&#10;&#10;Signed-off-by: Demopans &lt;gao.jeff3@gmail.com&gt;" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -482,6 +495,6 @@
     <select />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/genshinautocheckin$main.coverage" NAME="main Coverage Results" MODIFIED="1793041749135" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$ProjectFileDir$" />
+    <SUITE FILE_PATH="coverage/genshinautocheckin$main.coverage" NAME="main Coverage Results" MODIFIED="1793050306169" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$ProjectFileDir$" />
   </component>
 </project>
