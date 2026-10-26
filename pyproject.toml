@@ -5,11 +5,11 @@ description = ""
 authors = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
-python = ">=3.7,<3.11"
+python = ">=3.10,<3.15"
 genshinstats = "^1.4.11"
 schedule = "^1.1.0"
 
-[tool.poetry.dev-dependencies]
+[poetry.group.dev.dependencies]
 pyinstaller = "^4.7"
 
 [tool.poetry.scripts]
@@ -18,3 +18,38 @@ build = 'scripts.build.pyinstaller:main'
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.ds.scripts]
+_.env.PKG = "genshinautocheckin"
+_.env.DIR_SITE = "dist/cosmo/Lib/site-packages"
+
+cosmo-clean = "rm -rf $DIR_SITE || true"
+
+cosmo-setup = """
+  mkdir -p $DIR_SITE;
+  cp -r src/$PKG $DIR_SITE;
+  printf -- "-m\\n$PKG\\n..." > dist/cosmo/.args;
+"""
+
+cosmo-fetch.cwd = "dist/cosmo"
+cosmo-fetch.shell = """
+  wget -N https://cosmo.zip/pub/cosmos/bin/python;
+  chmod +x python;
+  cp python $PKG.zip;
+"""
+
+cosmo-compile = """
+  ./dist/cosmo/python -m compileall -b $DIR_SITE/$PKG;
+  find $DIR_SITE/$PKG -name "*.py" -delete -print;
+"""
+
+cosmo-update.cwd = "dist/cosmo"
+cosmo-update.shell = """
+  zip -r $PKG.zip .args Lib;
+  zip -d $PKG.zip 'Lib/site-packages/pip*';
+  zip -d $PKG.zip 'usr/*';
+  mv $PKG.zip $PKG;
+"""
+
+cosmo = ["cosmo-*"]
+
