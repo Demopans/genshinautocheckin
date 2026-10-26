@@ -135,7 +135,7 @@ if __name__ == '__main__':
   with open(sys.argv[1], 'r') as f:
     CONFIG = json.load(f)
     usrs = configCookie(override=True)
-    service, logEnable, logDir = (a := json.load(f))["asService"], a["log"], a["logDir"]
+    service, logEnable, logDir = CONFIG["asService"], CONFIG["log"], CONFIG["logDir"]
     
     LOG = logging.getLogger("genshin")
     LOG.setLevel(logging.INFO)
