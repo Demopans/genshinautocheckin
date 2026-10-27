@@ -3,8 +3,4 @@ genshin
 schedule
 nuitka
 nuitka-setuptools
-browser_cookie3
-rsa
-ordered-set
-pyinstaller
 requests
