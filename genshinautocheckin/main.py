@@ -1,7 +1,7 @@
-import asyncio, sys, genshin.client, genshin.utility, time, json, logging, requests
-import os
+import asyncio, sys, genshin.client, genshin.utility, time, json, logging, requests, os
 from random import randint
 from time import sleep
+from platform import system
 
 # Global vars
 CONFIG: dict
@@ -26,7 +26,15 @@ def configCookie(override=False) -> list[genshin.client.Client]:
 
 def taskRuntime(func, *args):
   try:
-    return taskOS(func, *args)
+    match system():
+      case 'Linux':
+        return asyncio.run(func(*args))
+      case 'macOS':
+        return asyncio.run(func(*args))  # Todo: Get someone to validate this case against Macs
+      case 'Windows':
+        return asyncio.run(func(*args), loop_factory=asyncio.SelectorEventLoop)
+      case _:
+        return asyncio.run(func(*args))
   # stuff common exceptions here
   except RuntimeError as e:
     LOG.error(f"[{time.strftime('%Y-%m-%d')}] RuntimeError: {e}")
@@ -37,18 +45,6 @@ def taskRuntime(func, *args):
     exit(1)
   except Exception as e:
     raise e
-
-def taskOS(func, *args):
-  from platform import system
-  match system():
-    case 'Linux':
-      return asyncio.run(func(*args))
-    case 'macOS':
-      return asyncio.run(func(*args))  # Todo: Get someone to validate this case against Macs
-    case 'Windows':
-      return asyncio.run(func(*args), loop_factory=asyncio.SelectorEventLoop)
-    case _:
-      return asyncio.run(func(*args))
 
 def taskAutoLogin(c: genshin.client.Client):
   """
