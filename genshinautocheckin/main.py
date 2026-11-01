@@ -42,7 +42,7 @@ def taskRuntime(func, *args):
     LOG.error(f"[{time.strftime('%Y-%m-%d')}] RedemptionError: {e} {args}")
   except genshin.InvalidCookies as e:
     LOG.critical(f"[{time.strftime('%Y-%m-%d')}] CookieError: {e}")
-    exit(1)
+    sys.exit(1)
   except Exception as e:
     raise e
 
@@ -65,7 +65,7 @@ def taskAutoCode(c: genshin.client.Client):
     # get current active codes
     api: str = "https://gachafeed-api.zashikiiii.workers.dev/api/codes/genshin"
     content = requests.get(api).json()["codes"]
-    content = filter(lambda x: "expiresAt" not in x.keys(), content)
+    content = filter(lambda x: "expired" != x['status'], content)
     content = set(map(lambda x: x["code"], content))
     
     # load cache
@@ -136,7 +136,6 @@ if __name__ == '__main__':
     LOG = logging.getLogger("genshin")
     LOG.setLevel(logging.INFO)
     LOG.addHandler(logging.StreamHandler(sys.stdout))
-    LOG.addHandler(logging.StreamHandler(sys.stderr))
     LOG.addHandler(logging.FileHandler(logDir))
     f.close()
     del f
