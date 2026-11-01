@@ -1,0 +1,85 @@
+stages:
+  - build
+  - package
+
+variables:
+  PYTHON_VERSION: "3.14.10"
+
+# Linux build
+build-linux:
+  stage: build
+  image: python:${PYTHON_VERSION}
+  tags:
+    - linux
+  script:
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - pip install pyinstaller
+    - python scripts/build/pyinstaller.py
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+# Windows build
+build-windows:
+  stage: build
+  image: python:${PYTHON_VERSION}
+  tags:
+    - windows
+  script:
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - pip install pyinstaller
+    - python scripts/build/pyinstaller.py
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+# macOS build
+build-macos:
+  stage: build
+  image: python:${PYTHON_VERSION}
+  tags:
+    - macos
+  script:
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+    - pip install pyinstaller
+    - python scripts/build/pyinstaller.py
+  artifacts:
+    paths:
+      - dist/
+    expire_in: 1 week
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+# Package and upload to GitLab releases (on tags)
+package-release:
+  stage: package
+  image: python:${PYTHON_VERSION}
+  script:
+    - |
+      if [ -n "$CI_COMMIT_TAG" ]; then
+        echo "Packaging release for tag: $CI_COMMIT_TAG"
+        # Download artifacts from previous jobs
+        curl --header "JOB-TOKEN: $CI_JOB_TOKEN" "$CI_API_V4_URL/projects/$CI_PROJECT_ID/jobs/$BUILD_JOB_ID/download" -o artifacts.zip
+        unzip artifacts.zip -d release/
+      fi
+  artifacts:
+    paths:
+      - release/
+    expire_in: 1 month
+  rules:
+    - if: $CI_COMMIT_TAG
