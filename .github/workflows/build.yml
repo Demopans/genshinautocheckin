@@ -69,9 +69,9 @@ jobs:
           apk add --no-cache python3 py3-pip build-base
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip --break-system-packages --root-user-action
-          pip install -r requirements.txt --break-system-packages --root-user-action
-          pip install pyinstaller --break-system-packages --root-user-action
+          python -m pip install --upgrade pip --break-system-packages --root-user-action=ignore
+          pip install -r requirements.txt --break-system-packages --root-user-action=ignore
+          pip install pyinstaller --break-system-packages --root-user-action=ignore
 
       - name: Build with PyInstaller
         run: |
