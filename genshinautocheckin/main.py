@@ -2,15 +2,17 @@ import asyncio, sys, genshin.client, genshin.utility, time, json, logging, reque
 from random import randint
 from time import sleep
 from platform import system
+from typing import cast
 
 # Global vars
 CONFIG: dict
 LOG: logging.Logger
 
 def configCookie(override=False) -> list[genshin.client.Client]:
+  users: list[genshin.Client]
   if override:
     users = [
-      genshin.client.Client({
+      genshin.Client({
         'ltuid_v2': ltuid_v2,
         'account_id_v2': ltuid_v2,
         'ltoken_v2': keys['ltoken_v2'],
@@ -19,9 +21,14 @@ def configCookie(override=False) -> list[genshin.client.Client]:
         'account_mid_v2': keys['ltmid_v2'],
       }, game=genshin.Game.GENSHIN)
       for ltuid_v2, keys in CONFIG["cookies"].items()]
-  # depreciated
+  # email+password pathway
   else:
-    users = [genshin.client.Client(genshin.utility.get_browser_cookies(), game=genshin.Game.GENSHIN)]
+    # manage async handler
+    async def a(a,b):
+      c = genshin.Client(game=genshin.Game.GENSHIN)
+      await c.login_with_password(a, b)
+      return c
+    users = [asyncio.run(a(ltuid_v2, keys)) for ltuid_v2, keys in CONFIG["auth"].items()]
   return users
 
 def taskRuntime(func, *args):
@@ -110,7 +117,6 @@ def taskAutoCode(c: genshin.client.Client):
     LOG.info(f"[{time.strftime('%Y-%m-%d')}] All codes claimed.")
     LOG.info(f"    userID: {c.cookie_manager.user_id} ")
 
-
 def servideMgr(usrs):
   import schedule
   def service():
@@ -130,18 +136,18 @@ if __name__ == '__main__':
   
   with open(sys.argv[1], 'r') as f:
     CONFIG = json.load(f)
-    usrs = configCookie(override=True)
-    service, logEnable, logDir = CONFIG["asService"], CONFIG["log"], CONFIG["logDir"]
+    usrs = configCookie(CONFIG["useCookie"])
+    logEnable = CONFIG["log"]
     
     LOG = logging.getLogger("genshin")
     LOG.setLevel(logging.INFO)
     LOG.addHandler(logging.StreamHandler(sys.stdout))
-    LOG.addHandler(logging.FileHandler(logDir))
+    LOG.addHandler(logging.FileHandler(CONFIG["logDir"]))
     f.close()
     del f
   
   # platform dependent logic set by user
-  if service:
+  if CONFIG["asService"]:
     servideMgr(usrs)
   else:
     for i in usrs:
