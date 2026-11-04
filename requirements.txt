@@ -4,3 +4,4 @@ schedule
 nuitka
 nuitka-setuptools
 requests
+rsa
