@@ -170,6 +170,10 @@ if __name__ == '__main__':
     if CONFIG['cacheCookies']:
       u = list(map(lambda i: {k:v for k,v in i.cookie_manager.cookies.items() if v!='' }, usrs))
       
+      # if exist
+      if 'cookies' not in CONFIG.keys():
+        CONFIG['cookies'] = dict()
+      
       for i in u:
         CONFIG['cookies'][i['ltuid_v2']] = {
           'ltoken_v2': i['ltoken_v2'],
