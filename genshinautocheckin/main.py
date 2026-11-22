@@ -33,6 +33,7 @@ def configCookie(override=False) -> list[genshin.client.Client]:
       for ltuid_v2, keys in CONFIG['cookies'].items()]
   # email+password pathway
   else:
+    # keep as loop, the simple reason of port contention
     # manage async handler
     async def tas(a, b):
       c = genshin.Client(game=genshin.Game.GENSHIN)
@@ -40,8 +41,8 @@ def configCookie(override=False) -> list[genshin.client.Client]:
       return c
     
     # poollike
-    users = list(asyncio.run(asyncStarMap(tas, [(ltuid_v2, keys) for ltuid_v2, keys in CONFIG['auth'].items()], 3)))
-    
+    # users = list(asyncio.run(asyncStarMap(tas, [(ltuid_v2, keys) for ltuid_v2, keys in CONFIG['auth'].items()], 3)))
+    users = [asyncio.run(tas(ltuid_v2, keys)) for ltuid_v2, keys in CONFIG['auth'].items()]
   return users
 
 def taskRuntime(func, *args):
