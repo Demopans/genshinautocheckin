@@ -35,14 +35,14 @@ def configCookie(override=False) -> list[genshin.client.Client]:
   else:
     # keep as loop, the simple reason of port contention
     # manage async handler
-    async def tas(a, b):
+    def tas(a, b):
       c = genshin.Client(game=genshin.Game.GENSHIN)
-      await c.login_with_password(a, b)
+      asyncio.run(c.login_with_password(a, b))
       return c
     
     # poollike
     # users = list(asyncio.run(asyncStarMap(tas, [(ltuid_v2, keys) for ltuid_v2, keys in CONFIG['auth'].items()], 3)))
-    users = [asyncio.run(tas(ltuid_v2, keys)) for ltuid_v2, keys in CONFIG['auth'].items()]
+    users = [tas(ltuid_v2, keys) for ltuid_v2, keys in CONFIG['auth'].items()]
   return users
 
 def taskRuntime(func, *args):
@@ -169,7 +169,8 @@ if __name__ == '__main__':
     
     # update config cookies as autoupdate bonus, config option
     if CONFIG['cacheCookies']:
-      u = list(map(lambda i: {k:v for k,v in i.cookie_manager.cookies.items() if v!='' }, usrs))
+      u = list(map(
+        lambda i: {k:v for k,v in i.cookie_manager.cookies.items() if v!='' }, usrs))
       
       # if exist
       if 'cookies' not in CONFIG.keys():
